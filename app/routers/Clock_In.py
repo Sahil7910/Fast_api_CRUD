@@ -76,17 +76,3 @@ class ClockInRecord(BaseModel):
     email: str
     location: str
     clock_in_time: datetime
-
-@app.get("/clock-in/filter", response_model=List[ClockInRecord])
-async def filter_clock_in(email: str = Query(...)):
-    query = {"email": email}
-
-    # Example if you want to filter by an ObjectId (this is just an illustrative case)
-    if "_id" in query:
-        try:
-            query["_id"] = ObjectId(query["_id"])  # Convert string ID to ObjectId
-        except Exception as e:
-            return {"error": "Invalid clock-in ID format", "details": str(e)}
-
-    records = clock_in_collection.find(query)
-    return [ClockInRecord(**record) for record in records]

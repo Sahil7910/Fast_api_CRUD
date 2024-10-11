@@ -1,13 +1,17 @@
-from fastapi import APIRouter,HTTPException
+from fastapi import APIRouter,HTTPException,FastAPI, Query
 from app.schemas.clock_in import ClockInCreate, ClockInUpdate
 from datetime import datetime
 from app.services.database import clock_in_collection
 from bson import ObjectId
-from typing import Optional
+from typing import List, Optional
+from pydantic import BaseModel
 
 
 router = APIRouter()
 
+
+
+app = FastAPI()
 @router.post("/clock-in")
 async def create_clock_in(clock_in: ClockInCreate):
     clock_in_dict = clock_in.dict()
@@ -62,3 +66,26 @@ async def delete_clock_in(id: str):
     return {"message": "Clock-in record deleted successfully"}
 
 
+class ClockInRecord(BaseModel):
+    email: str
+
+
+
+class ClockInRecord(BaseModel):
+    email: str
+    location: str
+    clock_in_time: datetime
+
+@app.get("/clock-in/filter", response_model=List[ClockInRecord])
+async def filter_clock_in(email: str = Query(...)):
+    query = {"email": email}
+
+    # Example if you want to filter by an ObjectId (this is just an illustrative case)
+    if "_id" in query:
+        try:
+            query["_id"] = ObjectId(query["_id"])  # Convert string ID to ObjectId
+        except Exception as e:
+            return {"error": "Invalid clock-in ID format", "details": str(e)}
+
+    records = clock_in_collection.find(query)
+    return [ClockInRecord(**record) for record in records]

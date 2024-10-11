@@ -65,33 +65,51 @@ async def delete_item(id: str):
 
     return {"message": "Item deleted successfully"}
 
+
+
+
 @router.get("/items/filter")
 async def filter_items(
-    email: Optional[str] = None,
-    expiry_date: Optional[date] = None,
-    insert_date: Optional[date] = None,
-    quantity: Optional[int] = None
+        id: Optional[str] = None,  # Assuming item_id is passed as a query parameter
+        email: Optional[str] = None,
+        expiry_date: Optional[date] = None,
+        insert_date: Optional[date] = None,
+        quantity: Optional[int] = None
 ):
-
-    # Create a filter dictionary
     filter_criteria = {}
 
-    # Adding filters only if they are provided
+    # Debugging: Check if email is received correctly
+    print(f"Received email: {email}")
+
+    # Handle the id filter safely
+    if id:  # Assuming item_id is passed as a query parameter
+        try:
+            filter_criteria["_id"] = ObjectId(id)
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Invalid item ID format: {str(e)}")
+
     if email:
-        filter_criteria["email"] = email
+        filter_criteria["email"] = email  # Check that 'email' exists in MongoDB
     if expiry_date:
         filter_criteria["expiry_date"] = {"$gt": expiry_date}
     if insert_date:
         filter_criteria["insert_date"] = {"$gt": insert_date}
-    if quantity is not None:  # Check for None to handle optional quantity
+    if quantity is not None:
         filter_criteria["quantity"] = {"$gte": quantity}
+
+    # Debugging: Log filter criteria for deeper inspection
+    print(f"Filter criteria: {filter_criteria}")
 
     try:
         # Fetching items based on filter criteria
         items = await items_collection.find(filter_criteria).to_list(length=None)
         if not items:
+            print("No items found")  # Log if no items were found
             raise HTTPException(status_code=404, detail="No items found matching the criteria")
+
+        # Debugging: Log found items for deeper inspection
+        print(f"Found items: {items}")
         return items
     except Exception as e:
+        print(f"Error occurred: {str(e)}")  # Log the exact error message
         raise HTTPException(status_code=500, detail=f"An error occurred: {str(e)}")
-

@@ -72,6 +72,7 @@ async def filter_items(
     insert_date: Optional[date] = None,
     quantity: Optional[int] = None
 ):
+
     # Create a filter dictionary
     filter_criteria = {}
 

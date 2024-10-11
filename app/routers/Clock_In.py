@@ -1,10 +1,11 @@
-from fastapi import APIRouter,HTTPException,FastAPI, Query
+from fastapi import APIRouter,HTTPException,FastAPI
 from app.schemas.clock_in import ClockInCreate, ClockInUpdate
 from datetime import datetime
 from app.services.database import clock_in_collection
 from bson import ObjectId
 from typing import List, Optional
 from pydantic import BaseModel
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
 router = APIRouter()

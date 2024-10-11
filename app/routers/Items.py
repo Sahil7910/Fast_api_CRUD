@@ -1,11 +1,10 @@
-from idlelib.query import Query
-
 from fastapi import APIRouter,HTTPException
 from app.schemas.items import ItemCreate  # Import Pydantic models from schemas
 from app.services.database import items_collection
 from datetime import datetime, date
 from bson import ObjectId
 from typing import Optional
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
 router = APIRouter()
